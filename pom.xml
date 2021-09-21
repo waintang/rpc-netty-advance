@@ -10,9 +10,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>ml.wpxm.java</groupId>
-    <artifactId>rpc-netty-basic</artifactId>
+    <artifactId>rpc-netty-advance</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>rpc-netty-basic</name>
+    <name>rpc-netty-advance</name>
     <description>Demo project for Spring Boot</description>
     <modules>
         <module>rpc-netty-protocal</module>
