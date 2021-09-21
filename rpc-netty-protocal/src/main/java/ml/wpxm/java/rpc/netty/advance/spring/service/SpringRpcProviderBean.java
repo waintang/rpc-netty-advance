@@ -2,6 +2,10 @@ package ml.wpxm.java.rpc.netty.advance.spring.service;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import ml.wpxm.java.IRegistryService;
+import ml.wpxm.java.RegistryFactory;
+import ml.wpxm.java.RegistryType;
+import ml.wpxm.java.ServiceInfo;
 import ml.wpxm.java.rpc.netty.advance.annotation.WpRemoteService;
 import ml.wpxm.java.rpc.netty.advance.protocol.NettyServer;
 import org.springframework.beans.BeansException;
@@ -22,9 +26,12 @@ public class SpringRpcProviderBean implements InitializingBean, BeanPostProcesso
 
     private final String serverHost;
 
-    public SpringRpcProviderBean(String serverHost, int serverPort) {
+    private final IRegistryService registryService;
+
+    public SpringRpcProviderBean(String serverHost, int serverPort,IRegistryService registryService) {
         this.serverPort = serverPort;
         this.serverHost = serverHost;
+        this.registryService = registryService;
     }
 
     @Override
@@ -38,7 +45,7 @@ public class SpringRpcProviderBean implements InitializingBean, BeanPostProcesso
 
     /**
      * 筛选有 WpRemoteService注解的 类
-     * 其方法 都收集起来
+     * 其方法 都收集起来（收集到 内存/中介者、zookeeper注册中心）
      *
      * 缺点：
      * 1、收集方法名 只能按 第一个interface去收集
@@ -53,12 +60,25 @@ public class SpringRpcProviderBean implements InitializingBean, BeanPostProcesso
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         if(bean.getClass().isAnnotationPresent(WpRemoteService.class)){
             Method[] methods = bean.getClass().getMethods();
+            String interfaceName = bean.getClass().getInterfaces()[0].getName();
             for(Method method : methods){
-                String key = bean.getClass().getInterfaces()[0].getName()+"."+method.getName();
+                String key = interfaceName+"."+method.getName();
                 ProviderBeanMethod providerBeanMethod = new ProviderBeanMethod();
                 providerBeanMethod.setBean(bean);
                 providerBeanMethod.setMethod(method);
+                //收集到 中介者（负责 调用）
                 ProviderMediator.providerBeanMethodMap.put(key,providerBeanMethod);
+
+            }
+            ServiceInfo serviceInfo = new ServiceInfo();
+            serviceInfo.setServiceAddress(this.serverHost);
+            serviceInfo.setServicePort(this.serverPort);
+            serviceInfo.setServiceName(interfaceName);
+            // 收集 注解接口 到 注册中心
+            try {
+                registryService.register(serviceInfo);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
         return bean;

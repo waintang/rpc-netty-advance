@@ -2,6 +2,9 @@ package ml.wpxm.java.rpc.netty.advance.spring.reference;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import ml.wpxm.java.IRegistryService;
+import ml.wpxm.java.RegistryFactory;
+import ml.wpxm.java.RegistryType;
 import ml.wpxm.java.rpc.netty.advance.annotation.WpRemoteReference;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanClassLoaderAware;
@@ -29,8 +32,11 @@ public class SpringRpcReferencePostProcessor implements ApplicationContextAware,
     private RpcClientProperties rpcClientProperties ;
     private static Map<String,BeanDefinition> rpcRefBeanDefinition = new ConcurrentHashMap<String,BeanDefinition>();
 
+    private IRegistryService registryService;
+
     public SpringRpcReferencePostProcessor(RpcClientProperties rpcClientProperties ){
         this.rpcClientProperties = rpcClientProperties;
+        this.registryService = RegistryFactory.createRegistryService(rpcClientProperties.getRegistryAddress(), RegistryType.findByCode(rpcClientProperties.getRegistryType()));
     }
 
     @Override
@@ -81,8 +87,9 @@ public class SpringRpcReferencePostProcessor implements ApplicationContextAware,
             BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(SpringRpcReferenceBean.class);
             builder.setInitMethodName("init");
             builder.addPropertyValue("interfaceClass",field.getType());
-            builder.addPropertyValue("serverHost",rpcClientProperties.getServerHost());
-            builder.addPropertyValue("serverPort",rpcClientProperties.getServerPort());
+//            builder.addPropertyValue("serverHost",rpcClientProperties.getServerHost());
+//            builder.addPropertyValue("serverPort",rpcClientProperties.getServerPort());
+            builder.addPropertyValue("registryService", this.registryService);
             BeanDefinition beanDefinition = builder.getBeanDefinition();
             rpcRefBeanDefinition.put(field.getName(),beanDefinition);
         }

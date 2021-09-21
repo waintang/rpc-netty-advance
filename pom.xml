@@ -19,6 +19,7 @@
         <module>rpc-netty-api</module>
         <module>rpc-netty-provider</module>
         <module>rpc-netty-consumer</module>
+        <module>rpc-netty-registry</module>
     </modules>
     <properties>
         <java.version>1.8</java.version>
@@ -51,6 +52,11 @@
             <dependency>
                 <groupId>ml.wpxm.java</groupId>
                 <artifactId>rpc-netty-protocal</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>ml.wpxm.java</groupId>
+                <artifactId>rpc-netty-registry</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
         </dependencies>

@@ -9,4 +9,7 @@ public class RpcServerProperties {
 
     private String serverHost;
     private int serverPort;
+
+    private String registryAddress;
+    private byte registryType;
 }
