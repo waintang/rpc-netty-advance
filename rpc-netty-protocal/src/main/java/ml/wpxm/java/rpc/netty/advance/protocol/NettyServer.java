@@ -21,12 +21,12 @@ public class NettyServer {
 
     public void startNettyServer(){
         log.info("begin start Netty server.");
-        EventLoopGroup boss = new NioEventLoopGroup();
+        EventLoopGroup boss = new NioEventLoopGroup();// 是个线程执行器 Executor
         EventLoopGroup worker = new NioEventLoopGroup();
 
         ServerBootstrap bootstrap = new ServerBootstrap();
         bootstrap.group(boss,worker)
-                .channel(NioServerSocketChannel.class)
+                .channel(NioServerSocketChannel.class) //理论上，执行selector.select()的地方
                 .childHandler(new RpcServerInitializer());
         try {
             ChannelFuture channelFuture = bootstrap.bind(this.serverHost,this.serverPort);
